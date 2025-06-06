@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  */
-
+#define PACKAGE_VERSION "1.3.0"
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -29,7 +29,12 @@
 #include <string.h>
 #include <inttypes.h>
 #include <ctype.h>
+#define strcasecmp _stricmp
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#include <sys/stat.h>
+#endif
 #include <sys/stat.h>
 
 #include <libimobiledevice-glue/collection.h>
@@ -2375,7 +2380,12 @@ static void* _irecv_handle_device_add(void *userdata)
 				break;
 			}
 			debug("%s: Could not open KIS device, retrying...\n", __func__);
+			
+#ifndef _MSC_VER
 			usleep(500000);
+#else
+			sleep(5);
+#endif
 		}
 		if (error != IRECV_E_SUCCESS) {
 			debug("%s: ERROR: could not open KIS device!\n", __func__);
@@ -2440,7 +2450,12 @@ static void* _irecv_handle_device_add(void *userdata)
 				break;
 			}
 			debug("Failed to set configuration, error %d, retrying...\n", error);
+
+#ifndef _MSC_VER
 			usleep(500000);
+#else
+			sleep(5);
+#endif
 		}
 		if (error != IRECV_E_SUCCESS) {
 			debug("Failed to set configuration, error %d\n", error);
@@ -2453,8 +2468,11 @@ static void* _irecv_handle_device_add(void *userdata)
 			if (error == IRECV_E_SUCCESS) {
 				break;
 			}
-			debug("Failed to set interface, error %d, retrying...\n", error);
+#ifndef _MSC_VER
 			usleep(500000);
+#else
+			sleep(5);
+#endif
 		}
 		if (error != IRECV_E_SUCCESS) {
 			debug("Failed to set interface, error %d\n", error);
@@ -2845,8 +2863,11 @@ static void *_irecv_event_handler(void* data)
 			running = 0;
 		}
 		mutex_unlock(&listener_mutex);
-
-		usleep(100000);
+#ifndef _MSC_VER
+		usleep(1000000);
+#else
+		sleep(10);
+#endif
 	} while (running);
 	libusb_hotplug_deregister_callback(irecv_hotplug_ctx, usb_hotplug_cb_handle);
 #else /* !HAVE_LIBUSB_HOTPLUG_API */
@@ -2905,7 +2926,12 @@ static void *_irecv_event_handler(void* data)
 		mutex_unlock(&listener_mutex);
 		if (!running)
 			break;
+
+#ifndef _MSC_VER
 		usleep(500000);
+#else
+		sleep(5);
+#endif
 	} while (running);
 #endif /* !HAVE_LIBUSB_HOTPLUG_API */
 #endif /* !HAVE_IOKIT */
@@ -3670,7 +3696,12 @@ irecv_error_t irecv_trigger_limera1n_exploit(irecv_client_t client)
 	THREAD_T thread;
 	thread_new(&thread, iokit_limera1n_usb_submit_request, args);
 
-	usleep(5 * 1000);
+
+#ifndef _MSC_VER
+	usleep(500000);
+#else
+	sleep(5);
+#endif
 	result = (*client->handle)->USBDeviceAbortPipeZero(client->handle);
 	if (result != kIOReturnSuccess)
 		debug("USBDeviceAbortPipeZero returned %#x\n", result);
