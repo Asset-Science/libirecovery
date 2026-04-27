@@ -29,7 +29,10 @@
 #include <string.h>
 #include <inttypes.h>
 #include <ctype.h>
+#ifdef _MSC_VER
+// MSVC has `_stricmp`; POSIX has `strcasecmp` natively. Alias only on MSVC.
 #define strcasecmp _stricmp
+#endif
 
 #ifndef _MSC_VER
 #include <unistd.h>
