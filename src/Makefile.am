@@ -16,7 +16,7 @@ libirecovery_1_0_la_CFLAGS = $(AM_CFLAGS)
 libirecovery_1_0_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBIRECOVERY_SO_VERSION) -no-undefined
 libirecovery_1_0_la_SOURCES = libirecovery.c
 
-if _WIN32
+if WIN32
 libirecovery_1_0_la_LDFLAGS += -avoid-version
 endif
 
