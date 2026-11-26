@@ -29,7 +29,10 @@
 #include <string.h>
 #include <inttypes.h>
 #include <ctype.h>
+#ifdef _MSC_VER
+// MSVC has `_stricmp`; POSIX has `strcasecmp` natively. Alias only on MSVC.
 #define strcasecmp _stricmp
+#endif
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -2372,9 +2375,9 @@ static void* _irecv_handle_device_add(void *userdata)
 	}
 
 	if (product_id == KIS_PRODUCT_ID) {
-		IOObjectRetain(device);
 		int i = 0;
 		for (i = 0; i < 10; i++) {
+			IOObjectRetain(device);
 			error = iokit_usb_open_service(&client, device);
 			if (error == IRECV_E_SUCCESS) {
 				break;
@@ -3014,6 +3017,7 @@ irecv_error_t irecv_device_event_unsubscribe(irecv_device_event_context_t contex
 	if (num == 0 && th_event_handler != THREAD_T_NULL && thread_alive(th_event_handler)) {
 #ifdef HAVE_IOKIT
 		if (iokit_runloop) {
+			while (!CFRunLoopIsWaiting(iokit_runloop)) usleep(420);
 			CFRunLoopStop(iokit_runloop);
 			iokit_runloop = NULL;
 		}
